@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use App\Models\Semester;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 class SemesterController extends Controller
 {
     /**
@@ -14,17 +16,8 @@ class SemesterController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $data = Courses::all();
+        return $data;
     }
 
     /**
@@ -35,7 +28,15 @@ class SemesterController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = Semester::create([
+            'name_id' => $request->name_id,
+        ]);
+        DB::commit();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Kì ' .$data->name_id . ' đã được tạo thành công !',
+        ]);
     }
 
     /**
@@ -44,20 +45,9 @@ class SemesterController extends Controller
      * @param  \App\Models\Semester  $semester
      * @return \Illuminate\Http\Response
      */
-    public function show(Semester $semester)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Semester  $semester
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Semester $semester)
-    {
-        //
+        return Semester::find($id);
     }
 
     /**
@@ -67,9 +57,18 @@ class SemesterController extends Controller
      * @param  \App\Models\Semester  $semester
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Semester $semester)
+    public function update(Request $request,$id)
     {
-        //
+         $data = Semester::find($id);
+         $data->update([
+            'name_id' => $request->name_id,
+            // 'updated_by' => auth('sanctum')->user()->id,
+        ]);
+        return response()->json([
+            'status' => 'success',
+            'message' =>'Danh mục đã được cập nhật thành '.$request->name_id.'!',
+        ]);
+
     }
 
     /**

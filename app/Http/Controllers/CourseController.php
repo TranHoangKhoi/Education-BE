@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Constraint\Count;
 
 class CourseController extends Controller
 {
@@ -14,7 +16,8 @@ class CourseController extends Controller
      */
     public function index()
     {
-        //
+        $data = Course::all();
+        return $data;
     }
 
     /**
@@ -35,7 +38,16 @@ class CourseController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $data = Course::create([
+            'name_id' => $request->name_id,
+        ]);
+        DB::commit();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Khóa ' .$data->name_id . ' đã được tạo thành công !',
+        ]);
     }
 
     /**
@@ -44,9 +56,9 @@ class CourseController extends Controller
      * @param  \App\Models\Course  $course
      * @return \Illuminate\Http\Response
      */
-    public function show(Course $course)
+    public function show($id)
     {
-        //
+        return Course::find($id);
     }
 
     /**
@@ -67,9 +79,18 @@ class CourseController extends Controller
      * @param  \App\Models\Course  $course
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Course $course)
+    public function update(Request $request, $id)
     {
-        //
+        $data = Course::find($id);
+         $data->update([
+            'name_id' => $request->name_id,
+            // 'updated_by' => auth('sanctum')->user()->id,
+        ]);
+        return response()->json([
+            'status' => 'success',
+            'message' =>'Khóa đã được cập nhật thành '.$request->name_id.'!',
+        ]);
+
     }
 
     /**
