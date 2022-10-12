@@ -13,13 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('subjects', function (Blueprint $table) {
+        Schema::create('scores', function (Blueprint $table) {
             $table->id();
-            $table->string('name_id');
-            $table->integer('id_semester');
-            $table->integer('id_class');
-            $table->integer('subject_type');
-            $table->string('name_subject');
+            $table->foreignId('id_subject')->constrained('subject');
+            $table->foreignId('id_student')->constrained('students');
+            $table->string('score');
             $table->timestamps();
         });
     }
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('subjects');
+        Schema::dropIfExists('scores');
     }
 };

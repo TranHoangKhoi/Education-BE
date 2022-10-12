@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Course;
 use App\Models\Semester;
+use Exception;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+
 class SemesterController extends Controller
 {
     /**
@@ -16,10 +17,18 @@ class SemesterController extends Controller
      */
     public function index()
     {
-        $data = Courses::all();
-        return $data;
+        try{
+            $data = Semester::all();
+            return response()->json([
+                'data' => $data
+            ],200);
+        } catch(Exception $e){
+            return response()->json([
+               'status' => 'Error',
+               'message' => $e->getMessage()
+            ],400);
+        }
     }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -28,15 +37,54 @@ class SemesterController extends Controller
      */
     public function store(Request $request)
     {
-        $data = Semester::create([
-            'name_id' => $request->name_id,
-        ]);
-        DB::commit();
+        $rules = [
+            'name_id' => 'required|max:255',
+        ];
+        $messages = [
+            'name_id.required' => ':atribuite không được để trống !',
+            'name_id.max' => ':attribute tối đa 255 ký tự !',
+        ];
 
+        $attributes = [
+            'name_id' => 'Tên mã không được để trống'
+        ];
+
+        try {
+            DB::beginTransaction();
+            $validator = Validator::make($request->all(), $rules, $messages, $attributes);
+            if($validator->fails()){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validator->errors(),
+                ], 422);
+            }
+            if($validator->fails()){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validator->errors(),
+                ], 422);
+            }
+
+            $data = Semester::create([
+                'name_id' => $request->name_id,
+                // 'slug' => Str::slug($request->name_id)
+
+            ]);
+            DB::commit();
+        } catch(Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 400);
+
+        }
         return response()->json([
             'status' => 'success',
-            'message' => 'Kì ' .$data->name_id . ' đã được tạo thành công !',
+            'message' =>'Kì '. $data->name_id . ' đã được tạo thành công !',
         ]);
+
+
     }
 
     /**
@@ -47,7 +95,27 @@ class SemesterController extends Controller
      */
     public function show($id)
     {
-        return Semester::find($id);
+        try{
+            $data = Semester::find($id);
+
+            if(empty($data)){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Kì này không tồn tại, vui lòng kiểm tra lại'
+
+                ],400);
+            }
+
+            return response()->json([
+                'data' => $data
+            ],200);
+
+        } catch(Exception $e){
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
     }
 
     /**
@@ -57,18 +125,51 @@ class SemesterController extends Controller
      * @param  \App\Models\Semester  $semester
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
-         $data = Semester::find($id);
-         $data->update([
-            'name_id' => $request->name_id,
-            // 'updated_by' => auth('sanctum')->user()->id,
-        ]);
+        $rules = [
+            'name_id' => 'required|max:255',
+        ];
+        $messages = [
+            'name_id.required' => ':atribuite không được để trống !',
+            'name_id.max' => ':attribute tối đa 255 ký tự !',
+        ];
+
+        $attributes = [
+            'name_id' => 'Tên mã không được để trống'
+        ];
+
+        try {
+            $validator = Validator::make($request->all(), $rules, $messages, $attributes);
+            if($validator->fails()){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validator->errors(),
+                ], 422);
+            }
+            $data = Semester::find($id);
+            if(!empty($data)){
+                 $data->update([
+                    'name_id' => $request->name_id,
+                    // 'slug' => Str::slug($request->name_id),
+                    // 'updated_by' => auth('sanctum')->user()->id,
+                ]);
+            }
+
+
+
+        } catch(Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 400);
+
+        }
         return response()->json([
             'status' => 'success',
-            'message' =>'Danh mục đã được cập nhật thành '.$request->name_id.'!',
+            'message' =>'Kì đã được cập nhật thành '.$request->name_id.'!',
         ]);
-
     }
 
     /**

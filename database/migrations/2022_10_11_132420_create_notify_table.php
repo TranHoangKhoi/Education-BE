@@ -13,9 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('semesters', function (Blueprint $table) {
+        Schema::create('notify', function (Blueprint $table) {
             $table->id();
-            $table->string('name_id');
+            $table->foreignId('id_cate')->constrained('notification_categories');
+            $table->string('title');
+            $table->string('date');
+            $table->text('content');
             $table->timestamps();
         });
     }
@@ -27,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('semesters');
+        Schema::dropIfExists('notify');
     }
 };

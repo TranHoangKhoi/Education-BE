@@ -1,7 +1,13 @@
 <?php
 
+use App\Http\Controllers\ClassController;
 use App\Http\Controllers\SemesterController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\FieldController;
+use App\Http\Controllers\MajorsController;
+use App\Http\Controllers\SubjectTypeController;
+use App\Models\Semester;
+use App\Models\SubjectType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,13 +27,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 //Kì học
-Route::get('/v1/semester', [SemesterController::class, 'index']);
-Route::post('/v1/semester', [SemesterController::class, 'store']);
-Route::get('/v1/semester/{id}', [SemesterController::class, 'show']);
-Route::patch('/v1/semester/{id}', [SemesterController::class, 'update']);
-// Khóa học
-Route::get('/v1/course', [CourseController::class, 'index']);
-Route::post('/v1/course', [CourseController::class, 'store']);
-Route::get('/v1/course/{id}', [CourseController::class, 'show']);
-Route::patch('/v1/course/{id}', [CourseController::class, 'update']);
+Route::resource('/v1/semester',SemesterController::class)->except('destroy');
 
+// Khóa học
+Route::resource('/v1/course',CourseController::class)->except('destroy');
+//Lĩnh Vực
+Route::resource('/v1/field',FieldController::class)->except('destroy');
+//Ngành học
+Route::resource('/v1/majors',MajorsController::class)->except('destroy');
+//Lớp
+Route::resource('/v1/class',ClassController::class)->except('destroy');
+//Loại môn học
+Route::resource('/v1/subject-type',SubjectTypeController::class)->except('destroy');

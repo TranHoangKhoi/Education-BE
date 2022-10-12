@@ -13,10 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('majors', function (Blueprint $table) {
+        Schema::create('notification_categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name_id');
-            $table->string('type_majors');
+            $table->string('name_cate');
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('majors');
+        Schema::dropIfExists('notification_categories');
     }
 };

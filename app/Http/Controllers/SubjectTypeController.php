@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Course;
+use App\Models\SubjectType;
 use Exception;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class CourseController extends Controller
+class SubjectTypeController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,7 +18,7 @@ class CourseController extends Controller
     public function index()
     {
         try{
-            $data = Course::all();
+            $data = SubjectType::all();
             return response()->json([
                 'data' => $data
             ],200);
@@ -38,15 +38,15 @@ class CourseController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name_id' => 'required|max:255',
+            'type' => 'required|max:255',
         ];
         $messages = [
-            'name_id.required' => ':atribuite không được để trống !',
-            'name_id.max' => ':attribute tối đa 255 ký tự !',
+            'type.required' => ':atribuite không được để trống !',
+            'type.max' => ':attribute tối đa 255 ký tự !',
         ];
 
         $attributes = [
-            'name_id' => 'Tên mã không được để trống'
+            'type' => 'Loại không được để trống'
         ];
 
         try {
@@ -65,9 +65,9 @@ class CourseController extends Controller
                 ], 422);
             }
 
-            $data = Course::create([
-                'name_id' => $request->name_id,
-                // 'slug' => Str::slug($request->name_id)
+            $data = SubjectType::create([
+                'type' => $request->type,
+                // 'slug' => Str::slug($request->type)
 
             ]);
             DB::commit();
@@ -81,7 +81,7 @@ class CourseController extends Controller
         }
         return response()->json([
             'status' => 'success',
-            'message' =>'Khóa '. $data->name_id . ' đã được tạo thành công !',
+            'message' =>'Loại'. $data->type . ' đã được tạo thành công !',
         ]);
 
 
@@ -90,18 +90,18 @@ class CourseController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Course  $Course
+     * @param  \App\Models\SubjectType  $SubjectType
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
         try{
-            $data = Course::find($id);
+            $data = SubjectType::find($id);
 
             if(empty($data)){
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Kì này không tồn tại, vui lòng kiểm tra lại'
+                    'message' => 'Loại này không tồn tại, vui lòng kiểm tra lại'
 
                 ],400);
             }
@@ -122,21 +122,21 @@ class CourseController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Course  $Course
+     * @param  \App\Models\SubjectType  $SubjectType
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $rules = [
-            'name_id' => 'required|max:255',
+            'type' => 'required|max:255',
         ];
         $messages = [
-            'name_id.required' => ':atribuite không được để trống !',
-            'name_id.max' => ':attribute tối đa 255 ký tự !',
+            'type.required' => ':atribuite không được để trống !',
+            'type.max' => ':attribute tối đa 255 ký tự !',
         ];
 
         $attributes = [
-            'name_id' => 'Tên mã không được để trống'
+            'type' => 'loại không được để trống'
         ];
 
         try {
@@ -147,11 +147,11 @@ class CourseController extends Controller
                     'message' => $validator->errors(),
                 ], 422);
             }
-            $data = Course::find($id);
+            $data = SubjectType::find($id);
             if(!empty($data)){
                  $data->update([
-                    'name_id' => $request->name_id,
-                    // 'slug' => Str::slug($request->name_id),
+                    'type' => $request->type,
+                    // 'slug' => Str::slug($request->type),
                     // 'updated_by' => auth('sanctum')->user()->id,
                 ]);
             }
@@ -168,18 +168,19 @@ class CourseController extends Controller
         }
         return response()->json([
             'status' => 'success',
-            'message' =>'Kì đã được cập nhật thành '.$request->name_id.'!',
+            'message' =>'Loại đã được cập nhật thành '.$request->type.'!',
         ]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Course  $Course
+     * @param  \App\Models\SubjectType  $SubjectType
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Course $Course)
+    public function destroy(SubjectType $SubjectType)
     {
         //
     }
 }
+

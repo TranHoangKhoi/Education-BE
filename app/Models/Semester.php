@@ -10,7 +10,7 @@ class Semester extends Model
     use HasFactory;
     // public $timestamps = false;
     protected $fillable = [
-        'name_id','created_at','update_at'
+        'name_id','id_course','created_at','update_at'
     ];
-    protected $table = 'semesters';
+    protected $table = 'semester';
 }
