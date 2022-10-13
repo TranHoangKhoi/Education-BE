@@ -6,6 +6,8 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\MajorsController;
 use App\Http\Controllers\SubjectTypeController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\SubjectController;
 use App\Models\Semester;
 use App\Models\SubjectType;
 use Illuminate\Http\Request;
@@ -39,3 +41,6 @@ Route::resource('/v1/majors',MajorsController::class)->except('destroy');
 Route::resource('/v1/class',ClassController::class)->except('destroy');
 //Loại môn học
 Route::resource('/v1/subject-type',SubjectTypeController::class)->except('destroy');
+
+Route::resource('/student',StudentController::class);
+Route::resource('/subject',SubjectController::class);
