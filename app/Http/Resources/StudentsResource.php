@@ -9,7 +9,6 @@ class StudentsResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
-     *
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
@@ -18,13 +17,17 @@ class StudentsResource extends JsonResource
     {
         // return parent::toArray($request);
         return [
-            'name' => $this->name,
             'id' => $this->id,
-            'idCourse' => $this->id_course,
-            'idClass ' => $this->id_class ,
-            'idMajor' => $this->id_major,
-            'nameId' => $this->name_id,
-            'email' => $this->email,
+            'id_course' => $this->id_course,
+            'name_course' => $this->course->name_id,
+            'id_class' => $this->id_class,
+            'name_class' => $this->class->name_id,
+            'id_major' => $this->id_major,
+            'name_major' => $this->majors->name_major,
+            'name_id_major' => $this->majors->name_id,
+            'name' => $this->name,
+            'name_id' => $this->name_id,
+            'email ' => $this->user->email,
             'phone' => $this->phone,
             'gender' => $this->gender,
         ];

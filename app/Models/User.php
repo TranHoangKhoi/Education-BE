@@ -18,10 +18,19 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        // 'name',
         'email',
         'password',
+        'role',
     ];
+
+    // public function student() {
+    //     return $this->hasOne(Students::class, 'id_user');
+    // }
+
+    // public function class() {
+    //     return $this->belongsToMany(ClassModel::class, Students::class);
+    // }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -31,6 +40,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'role',
     ];
 
     /**

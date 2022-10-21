@@ -3,39 +3,24 @@
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
-use App\Models\Students;
-use App\Http\Resources\StudentsResource;
-use App\Http\Resources\StudentsCollection;
+use App\Models\Lecturers;
+use App\Http\Resources\LecturersResource;
 
-
-class StudentController extends Controller
+class LecturersController extends Controller
 {
-    protected $students;
-
-    public function __construct(Students $students) {
-        $this->students = $students;
-    }
-
-    
-
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-
     public function index()
     {
-        $listStudents = Students::paginate(10);
-        // $listStudents->class;
-        // // $listStudents->user;
-        // $listStudents->majors;
-        // $listStudents->course;
+        $listLecturers = Lecturers::paginate(1);
 
-        $studentsResource = StudentsResource::collection($listStudents)->response()->getdata(true);
+        $lecturersResource = LecturersResource::collection($listLecturers)->response()->getdata(true);
 
         return response()->json([
-            'data' => $studentsResource,
+            'data' => $lecturersResource,
             'success' => true,
             'message' => 'Lấy dữ liệu thành công',
         ]); 
@@ -51,15 +36,13 @@ class StudentController extends Controller
     {
         $dataCreate = $request->all();
         $validator = Validator::make($dataCreate, [
-            'id_course' => 'required',
-            'id_class' => 'required',
-            'id_major' => 'required',
+            'id_user' => 'required',
             'name_id' => 'required',
             'name' => 'required',
-            'id_user' => 'required',
-            // 'email' => 'required|Email|unique:students',
+            // 'email' => 'required|Email|unique:lecturers',
             // 'password' => 'required|min:6',
             'phone' => 'required|min:10',
+            'address' => 'required',
             'gender' => 'required',
         ]);
 
@@ -72,14 +55,14 @@ class StudentController extends Controller
             return response()->json($arr, 200);
          }
 
-        $student = Students::create($dataCreate);
+        $lecturers = Lecturers::create($dataCreate);
 
-        $studentsResource = new StudentsResource($student);
+        $lecturersResource = new LecturersResource($lecturers);
 
         return response()->json([
-            'data' => $studentsResource,
+            'data' => $lecturersResource,
             'success' => true,
-            'message' => 'Thêm sinh viên thành công',
+            'message' => 'Thêm giảng viên thành công',
         ]);
     }
 
@@ -91,14 +74,12 @@ class StudentController extends Controller
      */
     public function show($id)
     {
-        
-        // $student =  Students::find($id);
-        $student = Students::where('id_user', $id)->first();
-        if($student) {
-            $studentsResource = new StudentsResource($student);
+        $lecturers =  Lecturers::find($id);
+        if($lecturers) {
+            $lecturersResource = new LecturersResource($lecturers);
     
             return response()->json([
-                'data' => $studentsResource,
+                'data' => $lecturersResource,
                 'status' => true,
                 'message' => 'Get data success'
             ]); 
@@ -120,24 +101,19 @@ class StudentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $student =  Students::find($id);
+        $lecturers =  Lecturers::find($id);
         // dd($request->all());
-        if($student) {
-            // $studentsResource = new Stu dentsResource($student);
-
+        if($lecturers) {
             $dataUpdate = $request->all();
             // dd($student);
 
             $validator = Validator::make($dataUpdate, [
-                'id_course' => 'required',
-                'id_class' => 'required',
-                'id_major' => 'required',
                 'name_id' => 'required',
                 'name' => 'required',
-                // 'email' => 'required|Email|unique:students,email,'.$id,
-                // // 'email' => 'required|Email',
+                // 'email' => 'required|Email|unique:lecturers,email,'.$id,
                 // 'password' => 'required|min:6',
                 'phone' => 'required|min:10',
+                'address' => 'required',
                 'gender' => 'required',
             ]);
 
@@ -150,14 +126,19 @@ class StudentController extends Controller
                 return response()->json($arr, 200);
             }
 
-            $student->update($dataUpdate);
+            // $student = Students::save($dataUpdate);
+            $lecturers->update($dataUpdate);
 
-            $studentsResource = new StudentsResource($student);
+            $lecturersResource = new LecturersResource($lecturers);
+
+            // return response()->json([
+            //     'data' => $studentsResource,
+            // ]);
     
             return response()->json([
-                'data' => $studentsResource,
+                'data' => $lecturersResource,
                 'status' => true,
-                'message' => 'Update data cucess'
+                'message' => 'Update data Sucess'
             ]); 
         } else {
             return response()->json([
@@ -176,13 +157,13 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
-        $student = Students::find($id);
-        if($student) {
-            $student->delete();
+        $lecturers = Lecturers::find($id);
+        if($lecturers) {
+            $lecturers->delete();
             return response()->json([
                 'data' => [],
                 'status' => true,
-                'message' => 'Đã xóa sinh viên'
+                'message' => 'Đã xóa giảng viên'
             ], 200); 
         } else {
             return response()->json([
