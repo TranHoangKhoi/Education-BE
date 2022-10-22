@@ -3,39 +3,24 @@
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
-use App\Models\Students;
-use App\Http\Resources\StudentsResource;
-use App\Http\Resources\StudentsCollection;
+use App\Http\Resources\CaseScoreResource;
+use App\Models\CaseScore;
 
-
-class StudentController extends Controller
+class CaseScoreController extends Controller
 {
-    protected $students;
-
-    public function __construct(Students $students) {
-        $this->students = $students;
-    }
-
-    
-
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-
     public function index()
     {
-        $listStudents = Students::paginate(10);
-        // $listStudents->class;
-        // // $listStudents->user;
-        // $listStudents->majors;
-        // $listStudents->course;
+        $listCase = CaseScore::paginate(10);
 
-        $studentsResource = StudentsResource::collection($listStudents)->response()->getdata(true);
+        $caseResource = CaseScoreResource::collection($listCase)->response()->getdata(true);
 
         return response()->json([
-            'data' => $studentsResource,
+            'data' => $caseResource,
             'success' => true,
             'message' => 'Lấy dữ liệu thành công',
         ]); 
@@ -51,16 +36,10 @@ class StudentController extends Controller
     {
         $dataCreate = $request->all();
         $validator = Validator::make($dataCreate, [
-            'id_course' => 'required',
-            'id_class' => 'required',
-            'id_major' => 'required',
-            'name_id' => 'required',
-            'name' => 'required',
-            'id_user' => 'required',
-            // 'email' => 'required|Email|unique:students',
-            // 'password' => 'required|min:6',
-            'phone' => 'required|min:10',
-            'gender' => 'required',
+            'id_subject' => 'required',
+            'title' => 'required',
+            // 'name_field' => 'required',
+            'percent' => 'required',
         ]);
 
         if($validator->fails()){
@@ -72,14 +51,14 @@ class StudentController extends Controller
             return response()->json($arr, 200);
          }
 
-        $student = Students::create($dataCreate);
+        $caseScore = CaseScore::create($dataCreate);
 
-        $studentsResource = new StudentsResource($student);
+        $caseScoreResource = new CaseScoreResource($caseScore);
 
         return response()->json([
-            'data' => $studentsResource,
+            'data' => $caseScoreResource,
             'success' => true,
-            'message' => 'Thêm sinh viên thành công',
+            'message' => 'Thêm dữ liệu thành công',
         ]);
     }
 
@@ -91,24 +70,24 @@ class StudentController extends Controller
      */
     public function show($id)
     {
-        
-        // $student =  Students::find($id);
-        $student = Students::where('id_user', $id)->first();
-        if($student) {
-            $studentsResource = new StudentsResource($student);
-    
+        $listCase = CaseScore::where('id_subject', $id)->paginate(10);
+        $caseResource = CaseScoreResource::collection($listCase)->response()->getdata(true);
+
+        if(!empty($caseResource['data'])) {
             return response()->json([
-                'data' => $studentsResource,
-                'status' => true,
-                'message' => 'Get data success'
-            ]); 
+                'data' => $caseResource,
+                'success' => true,
+                'message' => 'Tìm dữ liệu thành công',
+            ]);
         } else {
             return response()->json([
-                'data' => '',
-                'status' => false,
-                'message' => 'id not found'
-            ]); 
+                'data' => [],
+                'success' => false,
+                'message' => 'Id not found',
+            ]);
         }
+
+        
     }
 
     /**
@@ -120,25 +99,17 @@ class StudentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $student =  Students::find($id);
+        $caseScore =  CaseScore::find($id);
         // dd($request->all());
-        if($student) {
-            // $studentsResource = new Stu dentsResource($student);
+        if($caseScore) {
 
             $dataUpdate = $request->all();
-            // dd($student);
 
             $validator = Validator::make($dataUpdate, [
-                'id_course' => 'required',
-                'id_class' => 'required',
-                'id_major' => 'required',
-                'name_id' => 'required',
-                'name' => 'required',
-                // 'email' => 'required|Email|unique:students,email,'.$id,
-                // // 'email' => 'required|Email',
-                // 'password' => 'required|min:6',
-                'phone' => 'required|min:10',
-                'gender' => 'required',
+                'id_subject' => 'required',
+                'title' => 'required',
+                // 'name_field' => 'required',
+                'percent' => 'required',
             ]);
 
             if($validator->fails()){
@@ -150,14 +121,14 @@ class StudentController extends Controller
                 return response()->json($arr, 200);
             }
 
-            $student->update($dataUpdate);
+            $caseScore->update($dataUpdate);
 
-            $studentsResource = new StudentsResource($student);
+            $caseScoreResource = new CaseScoreResource($caseScore);
     
             return response()->json([
-                'data' => $studentsResource,
+                'data' => $caseScoreResource,
                 'status' => true,
-                'message' => 'Update data cucess'
+                'message' => 'Get data Sucess'
             ]); 
         } else {
             return response()->json([
@@ -176,13 +147,14 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
-        $student = Students::find($id);
-        if($student) {
-            $student->delete();
+        $caseScore = CaseScore::find($id);
+        if($caseScore) {
+            $caseScoreResource = new CaseScoreResource($caseScore);
+            $caseScore->delete();
             return response()->json([
-                'data' => [],
+                'data' => $caseScoreResource,
                 'status' => true,
-                'message' => 'Đã xóa sinh viên'
+                'message' => 'Đã xóa dữ liệu'
             ], 200); 
         } else {
             return response()->json([

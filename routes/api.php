@@ -10,6 +10,14 @@ use App\Http\Controllers\NotifyController;
 use App\Http\Controllers\SubjectTypeController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\LecturersController;
+use App\Http\Controllers\ScoresController;
+use App\Http\Controllers\CaseScoreController;
+use App\Http\Controllers\DetailScoresController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
+
+
 use App\Models\Semester;
 use App\Models\SubjectType;
 use Illuminate\Http\Request;
@@ -26,26 +34,82 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Auth
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
-//Kì học
-Route::resource('/v1/semester',SemesterController::class)->except('destroy');
+// Private Route
+Route::middleware('auth:sanctum')->group(function() {
+    Route::get('/user', [AuthController::class, 'user']);
+    Route::get('/logout', [AuthController::class, 'logOut']);
+    Route::resource('/student',StudentController::class)->only('show');
+    Route::resource('/scores',ScoresController::class)->only('index', 'show');
+    Route::resource('/casecore',CaseScoreController::class)->only('index', 'show');
+    Route::resource('/detailscorse',DetailScoresController::class)->only('index', 'show');
+    Route::get('/listScore/{id}', [ScoresController::class, 'loadListScoreByIdStudent']);
+    Route::resource('/subject',SubjectController::class)->only('index', 'show');
 
-// Khóa học
-Route::resource('/course',CourseController::class)->except('destroy');
-//Lĩnh Vực
-Route::resource('/field',FieldController::class)->except('destroy');
-//Ngành học
-Route::resource('/majors',MajorsController::class)->except('destroy');
-//Lớp
-Route::resource('/class',ClassController::class)->except('destroy');
-//Loại môn học
-Route::resource('/subject-type',SubjectTypeController::class)->except('destroy');
-//Danh mục thông báo
-Route::resource('/notify_cate',NotifyCateController::class)->except('destroy');
+    //Kì học
+    Route::resource('/v1/semester',SemesterController::class)->only('show', 'index');
+    // Khóa học
+    Route::resource('/v1/course',CourseController::class)->only('show', 'index');
+    //Lĩnh Vực
+    Route::resource('/v1/field',FieldController::class)->only('show', 'index');
+    //Ngành học
+    Route::resource('/v1/majors',MajorsController::class)->only('show', 'index');
+    //Lớp
+    Route::resource('/v1/class',ClassController::class)->only('show', 'index');
+    //Loại môn học
+    Route::resource('/v1/subject-type',SubjectTypeController::class)->only('show', 'index');
+
+    Route::middleware('LecturersCheck')->group(function() {
+        Route::resource('/detailscorse',DetailScoresController::class);
+        Route::resource('/student',StudentController::class)->only('index', 'show');
+        Route::resource('/scores',ScoresController::class);
+        Route::resource('/casecore',CaseScoreController::class);
+        Route::get('/listScore/{id}', [ScoresController::class, 'loadListScoreByIdStudent']);
+        Route::resource('/subject',SubjectController::class);
+    });
+
 //Thong bao
 Route::resource('/notify',NotifyController::class);
 Route::resource('/student',StudentController::class);
 Route::resource('/subject',SubjectController::class);
+    // Check Medium
+    Route::middleware('AdminCheck')->group(function() {
+        Route::resource('/student',StudentController::class)->only('index', 'show');
+        Route::resource('/lecturers',LecturersController::class)->only('index', 'show');
+        Route::resource('/scores',ScoresController::class);
+        Route::resource('/casecore',CaseScoreController::class);
+        Route::resource('/detailscorse',DetailScoresController::class);
+
+        Route::resource('/subject',SubjectController::class);
+        Route::resource('/v1/semester',SemesterController::class);
+        // Khóa học
+        Route::resource('/v1/course',CourseController::class);
+        //Lĩnh Vực
+        Route::resource('/v1/field',FieldController::class);
+        //Ngành học
+        Route::resource('/v1/majors',MajorsController::class);
+        //Lớp
+        Route::resource('/v1/class',ClassController::class);
+        //Loại môn học
+        Route::resource('/v1/subject-type',SubjectTypeController::class);
+
+            // Check Master
+            Route::middleware('MasterAdminCheck')->group(function() {
+                Route::resource('/admin',AdminController::class);
+                Route::resource('/student',StudentController::class);
+                Route::resource('/lecturers',LecturersController::class);
+            });
+    });
+
+
+
+
+    // Route::resource('/admin',AdminController::class);
+
+    // Route::resource('/student',StudentController::class);
+    // Route::resource('/subject',SubjectController::class)->only('index', 'show');
+    // Route::resource('/lecturers',LecturersController::class);
+});
