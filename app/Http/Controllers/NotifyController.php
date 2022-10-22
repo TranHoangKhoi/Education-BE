@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ClassModel;
-use Illuminate\Support\Facades\Validator;
+use App\Models\Notify;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
-class ClassController extends Controller
+class NotifyController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,17 +17,18 @@ class ClassController extends Controller
      */
     public function index()
     {
-        try{
-            $data = ClassModel::paginate(10);
+       try {
+           $data = Notify::all();
             return response()->json([
-                'data' => $data
+                'data'=> $data
             ],200);
-        } catch(Exception $e){
-            return response()->json([
-               'status' => 'Error',
-               'message' => $e->getMessage()
-            ],400);
-        }
+       } catch (Exception $e) {
+        return response()->json([
+            'status' => 'Error',
+            'message' => $e->getMessage()
+         ],400);
+       }
+
     }
 
     /**
@@ -39,15 +40,15 @@ class ClassController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name_id' => 'required|max:255',
+            'title' => 'required|max:255',
         ];
         $messages = [
-            'name_id.required' => ':atribuite không được để trống !',
-            'name_id.max' => ':attribute tối đa 255 ký tự !',
+            'title.required' => ':atribuite không được để trống !',
+            'title.max' => ':attribute tối đa 255 ký tự !',
         ];
 
         $attributes = [
-            'name_id' => 'Tên mã không được để trống'
+            'title' => 'Tên mã không được để trống'
         ];
 
         try {
@@ -66,11 +67,11 @@ class ClassController extends Controller
                 ], 422);
             }
 
-            $data = ClassModel::create([
-                'id_course'=>$request->id_course,
-                'id_major'=>$request->id_major,
-                'name_id' => $request->name_id
-                // 'slug' => Str::slug($request->name_id)
+            $data = Notify::create([
+                'title'=>$request->title,
+                'id_cate' => $request -> id_cate,
+                'content' => $request -> content,
+                // 'slug' => Str::slug($request->title)
 
             ]);
             DB::commit();
@@ -85,7 +86,7 @@ class ClassController extends Controller
         return response()->json([
             'data'=>$data,
             'status' => 'success',
-            'message' =>'Lớp '. $data->name_id . ' đã được tạo thành công !',
+            'message' =>'Thông báo '. $data->title . ' đã được tạo thành công !',
         ]);
 
 
@@ -94,53 +95,35 @@ class ClassController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\ClassModel  $classModel
+     * @param  \App\Models\Notify  $notify
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Notify $notify)
     {
-        try{
-            $data = ClassModel::find($id);
-
-            if(empty($data)){
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Lớp này không tồn tại, vui lòng kiểm tra lại'
-
-                ],400);
-            }
-
-            return response()->json([
-                'data' => $data
-            ],200);
-
-        } catch(Exception $e){
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ], 400);
-        }
+        //
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\ClassModel  $classModel
+     * @param  \App\Models\Notify  $notify
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $rules = [
-            'name_id' => 'required|max:255',
+            'title' => 'required|max:255',
+            'content' => 'required',
+            'id_cate' => 'required',
         ];
         $messages = [
-            'name_id.required' => ':atribuite không được để trống !',
-            'name_id.max' => ':attribute tối đa 255 ký tự !',
+            'title.required' => ':atribuite không được để trống !',
+            'title.max' => ':attribute tối đa 255 ký tự !',
         ];
 
         $attributes = [
-            'name_id' => 'Tên mã không được để trống'
+            'title' => 'Tiêu đề không được để trống'
         ];
 
         try {
@@ -151,19 +134,14 @@ class ClassController extends Controller
                     'message' => $validator->errors(),
                 ], 422);
             }
-            $data = ClassModel::find($id);
+            $data = Notify::find($id);
             if(!empty($data)){
                  $data->update([
-                    'id_course'=>$request->id_course,
-                    'id_major'=>$request->id_major,
-                    'name_id' => $request->name_id,
-                    // 'slug' => Str::slug($request->name_id),
+                    'title' => $request->title,
+                    // 'slug' => Str::slug($request->title),
                     // 'updated_by' => auth('sanctum')->user()->id,
                 ]);
             }
-
-
-
         } catch(Exception $e) {
             DB::rollback();
             return response()->json([
@@ -174,18 +152,33 @@ class ClassController extends Controller
         }
         return response()->json([
             'status' => 'success',
-            'message' =>'Lớp học đã được cập nhật thành !',
+            'message' =>'Danh mục thông báo đã được cập nhật thành !',
         ]);
     }
+
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\ClassModel  $classModel
+     * @param  \App\Models\Notify  $notify
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ClassModel $classModel)
+    public function destroy($id)
     {
-        //
+        $subject = Notify::find($id);
+        if($subject) {
+            $subject->delete();
+            return response()->json([
+                'data' => [],
+                'status' => true,
+                'message' => 'Đã xóa thông báo này'
+            ], 200);
+        } else {
+            return response()->json([
+                'data' => [],
+                'status' => false,
+                'message' => 'Thông báo không tồn tại'
+            ]);
+        }
     }
 }

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ClassModel;
-use Illuminate\Support\Facades\Validator;
+use App\Models\NotificationCate;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
-class ClassController extends Controller
+class NotifyCateController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,7 +18,7 @@ class ClassController extends Controller
     public function index()
     {
         try{
-            $data = ClassModel::paginate(10);
+            $data = NotificationCate::all();
             return response()->json([
                 'data' => $data
             ],200);
@@ -39,15 +39,15 @@ class ClassController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name_id' => 'required|max:255',
+            'name_cate' => 'required|max:255',
         ];
         $messages = [
-            'name_id.required' => ':atribuite không được để trống !',
-            'name_id.max' => ':attribute tối đa 255 ký tự !',
+            'name_cate.required' => ':atribuite không được để trống !',
+            'name_cate.max' => ':attribute tối đa 255 ký tự !',
         ];
 
         $attributes = [
-            'name_id' => 'Tên mã không được để trống'
+            'name_cate' => 'Tên mã không được để trống'
         ];
 
         try {
@@ -66,11 +66,9 @@ class ClassController extends Controller
                 ], 422);
             }
 
-            $data = ClassModel::create([
-                'id_course'=>$request->id_course,
-                'id_major'=>$request->id_major,
-                'name_id' => $request->name_id
-                // 'slug' => Str::slug($request->name_id)
+            $data = NotificationCate::create([
+                'name_cate'=>$request->name_cate
+                // 'slug' => Str::slug($request->name_cate)
 
             ]);
             DB::commit();
@@ -85,27 +83,28 @@ class ClassController extends Controller
         return response()->json([
             'data'=>$data,
             'status' => 'success',
-            'message' =>'Lớp '. $data->name_id . ' đã được tạo thành công !',
+            'message' =>'Danh mục thông báo '. $data->name_cate . ' đã được tạo thành công !',
         ]);
 
 
     }
 
+
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\ClassModel  $classModel
+     * @param  \App\Models\NotificationCate  $notificationCate
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
         try{
-            $data = ClassModel::find($id);
+            $data = NotificationCate::find($id);
 
             if(empty($data)){
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Lớp này không tồn tại, vui lòng kiểm tra lại'
+                    'message' => 'Danh mục này không tồn tại, vui lòng kiểm tra lại'
 
                 ],400);
             }
@@ -126,21 +125,21 @@ class ClassController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\ClassModel  $classModel
+     * @param  \App\Models\NotificationCate  $notificationCate
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $rules = [
-            'name_id' => 'required|max:255',
+            'name_cate' => 'required|max:255',
         ];
         $messages = [
-            'name_id.required' => ':atribuite không được để trống !',
-            'name_id.max' => ':attribute tối đa 255 ký tự !',
+            'name_cate.required' => ':atribuite không được để trống !',
+            'name_cate.max' => ':attribute tối đa 255 ký tự !',
         ];
 
         $attributes = [
-            'name_id' => 'Tên mã không được để trống'
+            'name_cate' => 'Tên mã không được để trống'
         ];
 
         try {
@@ -151,19 +150,14 @@ class ClassController extends Controller
                     'message' => $validator->errors(),
                 ], 422);
             }
-            $data = ClassModel::find($id);
+            $data = NotificationCate::find($id);
             if(!empty($data)){
                  $data->update([
-                    'id_course'=>$request->id_course,
-                    'id_major'=>$request->id_major,
-                    'name_id' => $request->name_id,
-                    // 'slug' => Str::slug($request->name_id),
+                    'name_cate' => $request->name_cate,
+                    // 'slug' => Str::slug($request->name_cate),
                     // 'updated_by' => auth('sanctum')->user()->id,
                 ]);
             }
-
-
-
         } catch(Exception $e) {
             DB::rollback();
             return response()->json([
@@ -174,17 +168,18 @@ class ClassController extends Controller
         }
         return response()->json([
             'status' => 'success',
-            'message' =>'Lớp học đã được cập nhật thành !',
+            'message' =>'Danh mục thông báo đã được cập nhật thành !',
         ]);
     }
+
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\ClassModel  $classModel
+     * @param  \App\Models\NotificationCate  $notificationCate
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ClassModel $classModel)
+    public function destroy(NotificationCate $notificationCate)
     {
         //
     }

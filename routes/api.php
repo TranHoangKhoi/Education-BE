@@ -5,6 +5,8 @@ use App\Http\Controllers\SemesterController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\MajorsController;
+use App\Http\Controllers\NotifyCateController;
+use App\Http\Controllers\NotifyController;
 use App\Http\Controllers\SubjectTypeController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
@@ -32,15 +34,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::resource('/v1/semester',SemesterController::class)->except('destroy');
 
 // Khóa học
-Route::resource('/v1/course',CourseController::class)->except('destroy');
+Route::resource('/course',CourseController::class)->except('destroy');
 //Lĩnh Vực
-Route::resource('/v1/field',FieldController::class)->except('destroy');
+Route::resource('/field',FieldController::class)->except('destroy');
 //Ngành học
-Route::resource('/v1/majors',MajorsController::class)->except('destroy');
+Route::resource('/majors',MajorsController::class)->except('destroy');
 //Lớp
-Route::resource('/v1/class',ClassController::class)->except('destroy');
+Route::resource('/class',ClassController::class)->except('destroy');
 //Loại môn học
-Route::resource('/v1/subject-type',SubjectTypeController::class)->except('destroy');
-
+Route::resource('/subject-type',SubjectTypeController::class)->except('destroy');
+//Danh mục thông báo
+Route::resource('/notify_cate',NotifyCateController::class)->except('destroy');
+//Thong bao
+Route::resource('/notify',NotifyController::class);
 Route::resource('/student',StudentController::class);
 Route::resource('/subject',SubjectController::class);
