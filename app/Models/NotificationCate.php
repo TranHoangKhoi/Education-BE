@@ -8,8 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class NotificationCate extends Model
 {
     use HasFactory;
+    protected $table = 'notification_categories';
     protected $fillable = [
         'name_cate','created_at','update_at'
     ];
-    protected $table = 'notification_categories';
+
+    // public function notify() {
+    //     return $this->hasMany(Notify::class, 'id');
+    // }
 }

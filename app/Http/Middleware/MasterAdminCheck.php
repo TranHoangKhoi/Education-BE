@@ -33,7 +33,7 @@ class MasterAdminCheck
                     ], 404);
             }
 
-            
+
             // if(Auth::user()->role === 2) {
             //      return $next($request);
             // } else {

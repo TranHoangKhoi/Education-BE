@@ -12,4 +12,8 @@ class Course extends Model
         'name_id','created_at','update_at'
     ];
     protected $table = 'course';
+
+    public function class() {
+        return $this->hasMany(ClassModel::class, 'id');
+   }
 }

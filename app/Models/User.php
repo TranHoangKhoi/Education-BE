@@ -22,6 +22,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'created_at',
+        'updated_at',
     ];
 
     // public function student() {

@@ -23,7 +23,7 @@ class CaseScoreController extends Controller
             'data' => $caseResource,
             'success' => true,
             'message' => 'Lấy dữ liệu thành công',
-        ]); 
+        ]);
     }
 
     /**
@@ -87,7 +87,7 @@ class CaseScoreController extends Controller
             ]);
         }
 
-        
+
     }
 
     /**
@@ -124,18 +124,18 @@ class CaseScoreController extends Controller
             $caseScore->update($dataUpdate);
 
             $caseScoreResource = new CaseScoreResource($caseScore);
-    
+
             return response()->json([
                 'data' => $caseScoreResource,
                 'status' => true,
                 'message' => 'Get data Sucess'
-            ]); 
+            ]);
         } else {
             return response()->json([
                 'data' => '',
                 'status' => false,
                 'message' => 'id not found'
-            ]); 
+            ]);
         }
     }
 
@@ -155,13 +155,13 @@ class CaseScoreController extends Controller
                 'data' => $caseScoreResource,
                 'status' => true,
                 'message' => 'Đã xóa dữ liệu'
-            ], 200); 
+            ], 200);
         } else {
             return response()->json([
                 'data' => [],
                 'status' => false,
                 'message' => 'id not found'
-            ]); 
+            ]);
         }
     }
 }

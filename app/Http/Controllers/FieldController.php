@@ -15,19 +15,29 @@ class FieldController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $input = $request->all();
+        $input['limit'] = $request->limit;
         try{
-            $data = Field::all();
-            return response()->json([
-                'data' => $data
-            ],200);
-        } catch(Exception $e){
-            return response()->json([
-               'status' => 'Error',
-               'message' => $e->getMessage()
-            ],400);
+            $data = Field::where(function($query) use($input) {
+                if(!empty($input['field_type'])){
+                    $query->where('field_type', 'like', '%'.$input['field_type'].'%');
+                }
+
+            })->orderBy('created_at', 'desc')->paginate(!empty($input['limit']) ? $input['limit'] : 10);
         }
+        catch(Exception $e){
+            return response()->json([
+                       'status' => 'Error',
+                       'message' => $e->getMessage()
+                             ],400);
+        }
+        return response()->json([
+                'data' => $data,
+                'success' => true,
+                'message' => 'Lấy dữ liệu thành công',
+            ],200);
     }
     /**
      * Store a newly created resource in storage.
@@ -38,26 +48,17 @@ class FieldController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'field_type' => 'required|max:255',
+            'field_type' => 'required|max:255|unique:field',
         ];
         $messages = [
             'field_type.required' => ':atribuite không được để trống !',
             'field_type.max' => ':attribute tối đa 255 ký tự !',
-        ];
-
-        $attributes = [
-            'field_type' => 'Tên mã không được để trống'
+            'field_type.unique' => ':attribute đã tồn tại !',
         ];
 
         try {
             DB::beginTransaction();
-            $validator = Validator::make($request->all(), $rules, $messages, $attributes);
-            if($validator->fails()){
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $validator->errors(),
-                ], 422);
-            }
+            $validator = Validator::make($request->all(), $rules, $messages,);
             if($validator->fails()){
                 return response()->json([
                     'status' => 'error',
@@ -66,8 +67,8 @@ class FieldController extends Controller
             }
 
             $data = Field::create([
-                'field_type' => $request->field_type,
-                // 'slug' => Str::slug($request->field_type)
+                'field_type' => mb_strtoupper(mb_substr($request->field_type, 0, 1)).mb_substr($request->field_type, 1) ,
+
 
             ]);
             DB::commit();
@@ -80,6 +81,7 @@ class FieldController extends Controller
 
         }
         return response()->json([
+            'data'=>$data,
             'status' => 'success',
             'message' =>'Lĩnh vực '. $data->field_type . ' đã được tạo thành công !',
         ]);
@@ -133,14 +135,13 @@ class FieldController extends Controller
         $messages = [
             'field_type.required' => ':atribuite không được để trống !',
             'field_type.max' => ':attribute tối đa 255 ký tự !',
+
         ];
 
-        $attributes = [
-            'field_type' => 'Tên mã không được để trống'
-        ];
+
 
         try {
-            $validator = Validator::make($request->all(), $rules, $messages, $attributes);
+            $validator = Validator::make($request->all(), $rules, $messages,);
             if($validator->fails()){
                 return response()->json([
                     'status' => 'error',
@@ -150,9 +151,7 @@ class FieldController extends Controller
             $data = Field::find($id);
             if(!empty($data)){
                  $data->update([
-                    'field_type' => $request->field_type,
-                    // 'slug' => Str::slug($request->field_type),
-                    // 'updated_by' => auth('sanctum')->user()->id,
+                'field_type' => mb_strtoupper(mb_substr($request->field_type, 0, 1)).mb_substr($request->field_type, 1),
                 ]);
             }
 
@@ -167,6 +166,7 @@ class FieldController extends Controller
 
         }
         return response()->json([
+            'data'=>$data,
             'status' => 'success',
             'message' =>'Lĩnh vực đã được cập nhật thành !',
         ]);
@@ -178,8 +178,22 @@ class FieldController extends Controller
      * @param  \App\Models\Field  $Field
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Field $Field)
+    public function destroy($id)
     {
-
+        $data = Field::find($id);
+        if($data) {
+            $data->delete();
+            return response()->json([
+                'data' => [],
+                'status' => true,
+                'message' => 'Đã xóa '
+            ], 200);
+        } else {
+            return response()->json([
+                'data' => [],
+                'status' => false,
+                'message' => 'id not found'
+            ]);
+        }
     }
 }

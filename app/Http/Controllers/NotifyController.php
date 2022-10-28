@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\NotifyResource;
 use App\Models\Notify;
 use Exception;
 use Illuminate\Http\Request;
@@ -10,24 +11,46 @@ use Illuminate\Support\Facades\Validator;
 
 class NotifyController extends Controller
 {
+    // protected $notify;
+
+    // public function __construct(Notify $notify) {
+    //     $this->notify = $notify;
+    // }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $input = $request->all();
+        $input['limit'] = $request->limit;
        try {
-           $data = Notify::all();
-            return response()->json([
-                'data'=> $data
-            ],200);
+            $data  =  Notify::select('notify.id','notify.id_cate','notify.title','notify.content','notify.created_at','notify.updated_at')
+            ->join('notification_categories','notify.id_cate','=','notification_categories.id')
+            ->where(function($query) use($input) {
+                    if(!empty($input['title'])){
+                        $query->where('title', 'like', '%'.$input['title'].'%');
+                     }
+                     if(!empty($input['nameCate'])){
+                        $query->where('notification_categories.name_cate', 'like', '%'.$input['nameCate'].'%');
+                     }
+
+           })->orderBy('notify.created_at', 'desc')->paginate(!empty($input['limit']) ? $input['limit'] : 10);
+        //    $resource = NotifyResource::collection($data)->response()->getdata(true);
+           $resource =  NotifyResource::collection($data);
        } catch (Exception $e) {
-        return response()->json([
-            'status' => 'Error',
+            return response()->json([
+                'status' => 'Error',
             'message' => $e->getMessage()
          ],400);
        }
+       return response()->json([
+                'data' => $resource,
+                'success' => true,
+                'message' => 'Lấy dữ liệu thành công',
+        ],200);
 
     }
 
@@ -41,34 +64,20 @@ class NotifyController extends Controller
     {
         $rules = [
             'title' => 'required|max:255',
+            'content'=>'required',
+            'id_cate'=>'required',
         ];
-        $messages = [
-            'title.required' => ':atribuite không được để trống !',
-            'title.max' => ':attribute tối đa 255 ký tự !',
-        ];
-
-        $attributes = [
-            'title' => 'Tên mã không được để trống'
-        ];
-
         try {
             DB::beginTransaction();
-            $validator = Validator::make($request->all(), $rules, $messages, $attributes);
+            $validator = Validator::make($request->all(), $rules,);
             if($validator->fails()){
                 return response()->json([
                     'status' => 'error',
                     'message' => $validator->errors(),
                 ], 422);
             }
-            if($validator->fails()){
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $validator->errors(),
-                ], 422);
-            }
-
             $data = Notify::create([
-                'title'=>$request->title,
+                'title' => mb_strtolower($request->title),
                 'id_cate' => $request -> id_cate,
                 'content' => $request -> content,
                 // 'slug' => Str::slug($request->title)
@@ -98,10 +107,34 @@ class NotifyController extends Controller
      * @param  \App\Models\Notify  $notify
      * @return \Illuminate\Http\Response
      */
-    public function show(Notify $notify)
-    {
-        //
-    }
+
+        public function show($id)
+        {
+            try{
+                $data = Notify::find($id);
+                if(empty($data)){
+
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Thông báo này không tồn tại, vui lòng kiểm tra lại'
+
+                    ],400);
+                }
+                $notifyResource = new NotifyResource($data);
+
+                return response()->json([
+                    'data' => $notifyResource,
+                ],200);
+
+            } catch(Exception $e){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ], 400);
+            }
+        }
+
+
 
     /**
      * Update the specified resource in storage.
@@ -113,21 +146,13 @@ class NotifyController extends Controller
     public function update(Request $request, $id)
     {
         $rules = [
-            'title' => 'required|max:255',
-            'content' => 'required',
-            'id_cate' => 'required',
-        ];
-        $messages = [
-            'title.required' => ':atribuite không được để trống !',
-            'title.max' => ':attribute tối đa 255 ký tự !',
-        ];
+             'title' => 'required|max:255',
+             'content'=>'required',
+             'id_cate'=>'required',
 
-        $attributes = [
-            'title' => 'Tiêu đề không được để trống'
         ];
-
         try {
-            $validator = Validator::make($request->all(), $rules, $messages, $attributes);
+            $validator = Validator::make($request->all(), $rules,);
             if($validator->fails()){
                 return response()->json([
                     'status' => 'error',
@@ -137,9 +162,9 @@ class NotifyController extends Controller
             $data = Notify::find($id);
             if(!empty($data)){
                  $data->update([
-                    'title' => $request->title,
-                    // 'slug' => Str::slug($request->title),
-                    // 'updated_by' => auth('sanctum')->user()->id,
+                    'id_cate'=>$request->id_cate,
+                    'title' => mb_strtolower($request->title),
+                    'content'=>$request->content,
                 ]);
             }
         } catch(Exception $e) {
@@ -152,7 +177,7 @@ class NotifyController extends Controller
         }
         return response()->json([
             'status' => 'success',
-            'message' =>'Danh mục thông báo đã được cập nhật thành !',
+            'message' =>'Thông báo đã được cập nhật !',
         ]);
     }
 
@@ -181,4 +206,15 @@ class NotifyController extends Controller
             ]);
         }
     }
+    // public function search($name){
+    //     $data = Notify::where("title","like","%".$name."%")
+    //                     // ->orWhere("id")
+    //                     ->get();
+    //     // $dataResource = new NotifyResource($data);
+    //      return response()->json([
+    //         //  'data'=>$dataResource,
+    //         'data'=>$data,
+
+    //      ]);
+    //  }
 }

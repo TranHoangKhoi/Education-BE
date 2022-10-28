@@ -60,7 +60,7 @@ class AuthController extends Controller
             ];
             return response()->json($arr, 200);
          }
-        
+
         $userRegister = User::create([
             'email' => $dataCreate['email'],
             'password' => Hash::make($dataCreate['password']),
@@ -77,7 +77,7 @@ class AuthController extends Controller
         if($role == 0) {
             $userDetails = Students::where('id_user', $request->user()->id)->first();
             // $userDetails = Students::with('majors')->where('id', $request->user()->id)->first();
-            
+
             // $className = ClassModel::find($userDetails->id_class);
             // $userDetails->class;
             // $userDetails->user;
@@ -90,7 +90,7 @@ class AuthController extends Controller
             ], 200);
         } else if($role == 1) {
             $userDetails = Lecturers::with('user')->where('id_user',  $request->user()->id)->first();
-            
+
             $userDetailsRs = new LecturersResource($userDetails);
             return response()->json([
                 'data' => $userDetailsRs,
@@ -112,10 +112,10 @@ class AuthController extends Controller
     public function logOut() {
         // Revoke all tokens...
         // auth()->user()->tokens()->delete();
-        
+
         // // Revoke the token that was used to authenticate the current request...
         auth()->user()->currentAccessToken()->delete();
-        
+
         // // Revoke a specific token...
         // $user->tokens()->where('id', $tokenId)->delete();
 

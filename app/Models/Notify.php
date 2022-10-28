@@ -12,4 +12,9 @@ class Notify extends Model
         'id_cate','title','content','created_at','update_at'
     ];
     protected $table = 'notify';
+
+    public function notification() {
+         return $this->hasOne(NotificationCate::class, 'id', 'id_cate');
+    }
+
 }

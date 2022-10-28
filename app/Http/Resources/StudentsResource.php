@@ -14,22 +14,26 @@ class StudentsResource extends JsonResource
      */
 
     public function toArray($request)
+
     {
+
         // return parent::toArray($request);
         return [
             'id' => $this->id,
-            'id_course' => $this->id_course,
-            'name_course' => $this->course->name_id,
-            'id_class' => $this->id_class,
-            'name_class' => $this->class->name_id,
-            'id_major' => $this->id_major,
-            'name_major' => $this->majors->name_major,
-            'name_id_major' => $this->majors->name_id,
+            'idCourse' => $this->id_course,
+            'nameCourse' => $this->course->name_id,
+            'idClass' => $this->id_class,
+            'nameClass' => $this->class->name_class,
+            'idMajor' => $this->id_major,
+            'nameMajor' => $this->majors->name_major,
+            'nameIdMajor' => $this->majors->name_id,
             'name' => $this->name,
-            'name_id' => $this->name_id,
+            'mssv' => $this->mssv,
             'email ' => $this->user->email,
             'phone' => $this->phone,
             'gender' => $this->gender,
+            'created_at' => $this->created_at->format('d-m-Y H:i:s'),
+            'updated_at' => $this->updated_at->format('d-m-Y H:i:s'),
         ];
     }
 }

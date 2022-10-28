@@ -16,14 +16,21 @@ class SubjectRecource extends JsonResource
     {
         // return parent::toArray($request);
         return [
-            'idSemester' => $this->id_semester,
             'id' => $this->id,
+            'id' => $this->id,
+            'idSemester' => $this->id_semester,
+            'nameSemester'=>$this->semester->name_id,
             'idClass' => $this->id_class,
+            'nameClass'=>$this->classData->name_class,
             'idMajor' => $this->id_major,
-            'subjectType' => $this->subject_type, 
-            'nameId' => $this->name_id, 
-            'name' => $this->name, 
-            'credit' => $this->credit, 
+             'nameMajor'=>$this->majors->name_major,
+            'idType' => $this->type,
+            'subjectType'=>$this->subjectType->type_name,
+            'nameId' => $this->name_id_subject,
+            'name' => $this->name ,
+            'credit' => $this->credit,
+            'created_at' => $this->created_at->format('d-m-Y H:i:s'),
+            'updated_at' => $this->updated_at->format('d-m-Y H:i:s'),
         ];
     }
 }

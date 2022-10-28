@@ -19,6 +19,8 @@ class Scores extends Model
     public function detailsScore() {
         return $this->hasMany(DetailScores::class, 'id_score');
     }
-
+    public function students() {
+        return $this->hasMany(Students::class, 'id_student');
+    }
 
 }

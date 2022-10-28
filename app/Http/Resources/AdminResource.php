@@ -17,13 +17,15 @@ class AdminResource extends JsonResource
         // return parent::toArray($request);
         return [
             // 'id' => $this->id,
-            'id_acc' => $this->id_user,
+            'idUser' => $this->id_user,
             'name' => $this->name,
             'email' => $this->user->email,
-            'name_id' => $this->name_id,
+            'nameId' => $this->name_id,
             'phone' => $this->phone,
             'address' => $this->address,
             'role_ad' => $this->role,
+            // 'created_at' => $this->created_at->format('d-m-Y H:i:s'),
+            // 'updated_at' => $this->updated_at->format('d-m-Y H:i:s'),
         ];
     }
 }

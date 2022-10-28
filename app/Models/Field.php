@@ -12,4 +12,8 @@ class Field extends Model
         'field_type','created_at','update_at'
     ];
     protected $table = 'field';
+
+    public function majors() {
+        return $this->hasMany(Majors::class, 'id');
+    }
 }

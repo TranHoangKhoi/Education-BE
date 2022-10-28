@@ -24,7 +24,7 @@ class ScoresController extends Controller
             'data' => $scoreResource,
             'success' => true,
             'message' => 'Lấy dữ liệu thành công',
-        ]); 
+        ]);
     }
 
     /**
@@ -76,13 +76,13 @@ class ScoresController extends Controller
                 'data' => $scoreResource,
                 'status' => true,
                 'message' => 'Get data success'
-            ]); 
+            ]);
         } else {
             return response()->json([
                 'data' => [],
                 'status' => false,
                 'message' => 'id not found'
-            ]); 
+            ]);
         }
     }
 
@@ -125,18 +125,18 @@ class ScoresController extends Controller
             // return response()->json([
             //     'data' => $studentsResource,
             // ]);
-    
+
             return response()->json([
                 'data' => $scoreResource,
                 'status' => true,
-                'message' => 'Get data Sucess'
-            ]); 
+                'message' => 'Get data Success'
+            ]);
         } else {
             return response()->json([
                 'data' => '',
                 'status' => false,
                 'message' => 'id not found'
-            ]); 
+            ]);
         }
     }
 
@@ -155,16 +155,15 @@ class ScoresController extends Controller
                 'data' => [],
                 'status' => true,
                 'message' => 'Đã xóa dữ liệu'
-            ], 200); 
+            ], 200);
         } else {
             return response()->json([
                 'data' => [],
                 'status' => false,
                 'message' => 'id not found'
-            ], 404); 
+            ], 404);
         }
     }
-
     public function loadListScoreByIdStudent($id) {
         if($id) {
             $score = Scores::with('subject')->with('detailsScore')->where('id_student', $id)->get();
@@ -173,8 +172,8 @@ class ScoresController extends Controller
                 'data' => $score,
                 // 'data' => date('Y-m-d H:i:s'),
                 'status' => true,
-                'message' => 'Get data Sucess'
-            ]); 
+                'message' => 'Get data Success'
+            ]);
         }
     }
 }

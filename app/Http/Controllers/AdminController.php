@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Admin;
 use App\Http\Resources\AdminResource;
+use Exception;
 
 class AdminController extends Controller
 {
@@ -14,22 +15,55 @@ class AdminController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $listAdmin = Admin::paginate(10);
-        // $listStudents->class;
-        // // $listStudents->user;
-        // $listStudents->majors;
-        // $listStudents->course;
+        $input = $request->all();
+        $input['limit'] = $request->limit;
+       try {
+            $data  =  Admin::select(
+                'admin.id','admin.name','admin.name_id','admin.id_user','admin.phone','admin.address'
+                )
+            ->join('users','admin.id_user','=','users.id')
+            ->where(function($query) use($input) {
+                //Lọc theo  Email
+                    if(!empty($input['email'])){
+                            $query->where('users.email', 'like', '%'.$input['email'].'%');
+                      }
+                            //lọc theo tên
+                     if(!empty($input['name'])){
+                        $query->where('name', 'like', '%'.$input['name'].'%');
+                     }
+                     //lọc theo mã số sinh viên
+                     if(!empty($input['nameID'])){
+                        $query->where('name_id', 'like', '%'.$input['nameID'].'%');
+                     }
+                     //loc theo sdt
+                     if(!empty($input['phone'])){
+                        $query->where('phone', $input['phone']);
+                     }
+                     //loc theo dia chi
+                     if(!empty($input['address'])){
+                        $query->where('address','%' .$input['address'].'%');
+                     }
 
-        $adminsResource = AdminResource::collection($listAdmin)->response()->getdata(true);
+           })->orderBy('admin.id', 'desc')->paginate(!empty($input['limit']) ? $input['limit'] : 10);
+        //    $resource = NotifyResource::collection($data)->response()->getdata(true);
+           $resource =  AdminResource::collection($data);
+       } catch (Exception $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+         ],400);
+       }
+       return response()->json([
+                'data' => $resource,
+                'success' => true,
+                'message' => 'Lấy dữ liệu thành công!',
+        ],200);
 
-        return response()->json([
-            'data' => $adminsResource,
-            'success' => true,
-            'message' => 'Lấy dữ liệu thành công',
-        ]); 
     }
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -39,11 +73,11 @@ class AdminController extends Controller
      */
     public function store(Request $request)
     {
-        $dataCreate = $request->all();
-        $validator = Validator::make($dataCreate, [
+
+        $validator = Validator::make($request->all(), [
             'id_user' => 'required|unique:admin',
             'name' => 'required',
-            'name_id' => 'required',
+            'name_id' => 'required|unique:admin',
             'phone' => 'required',
             'address' => 'required',
         ]);
@@ -57,7 +91,16 @@ class AdminController extends Controller
             return response()->json($arr, 200);
          }
 
-        $admin = Admin::create($dataCreate);
+        $admin = Admin::create(
+            [
+                'id_user' => $request->id_user,
+                'name_id' => mb_strtoupper( $request->name_id),
+                'name' => mb_convert_case($request->name, MB_CASE_TITLE, "UTF-8") ,
+                'phone'=>$request->phone,
+                'address'=>  mb_convert_case($request->address, MB_CASE_TITLE, "UTF-8") ,
+                'role' =>$request->role,
+            ]
+        );
 
         $adminResource = new AdminResource($admin);
 
@@ -79,18 +122,18 @@ class AdminController extends Controller
         $admin =  Admin::where('id_user', $id)->first();
         if($admin) {
             $adminResource = new AdminResource($admin);
-    
+
             return response()->json([
                 'data' => $adminResource,
                 'status' => true,
                 'message' => 'Get data success'
-            ]); 
+            ]);
         } else {
             return response()->json([
                 'data' => '',
                 'status' => false,
                 'message' => 'id not found'
-            ]); 
+            ]);
         }
     }
 
@@ -130,21 +173,21 @@ class AdminController extends Controller
                 return response()->json($arr, 200);
             }
 
-            $admin->update($dataUpdate);
+            $admin->update();
 
             $adminResource = new AdminResource($admin);
-    
+
             return response()->json([
                 'data' => $adminResource,
                 'status' => true,
                 'message' => 'Update data cucess'
-            ]); 
+            ]);
         } else {
             return response()->json([
                 'data' => '',
                 'status' => false,
                 'message' => 'id not found'
-            ]); 
+            ]);
         }
     }
 
@@ -164,13 +207,13 @@ class AdminController extends Controller
                     'data' => [],
                     'status' => true,
                     'message' => 'Đã xóa sinh viên'
-                ], 200); 
+                ], 200);
             } else {
                 return response()->json([
                     'data' => [],
                     'status' => false,
                     'message' => 'id not found'
-                ]); 
+                ]);
             }
         }
     }

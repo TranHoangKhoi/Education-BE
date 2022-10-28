@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\MajorsResource;
-use App\Models\Majors;
+use App\Models\Information;
 use Exception;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class MajorsController extends Controller
+class InformationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -21,16 +20,18 @@ class MajorsController extends Controller
         $input = $request->all();
         $input['limit'] = $request->limit;
         try{
-            $data = Majors::where(function($query) use($input) {
-                if(!empty($input['name_id'])){
-                    $query->where('name_id', 'like', '%'.$input['name_id'].'%');
+            $data = Information::where(function($query) use($input) {
+                if(!empty($input['email'])){
+                    $query->where('email', 'like', '%'.$input['email'].'%');
                 }
-                if(!empty($input['name_major'])){
-                    $query->where('name_major', 'like', '%'.$input['name_major'].'%');
+                if(!empty($input['phone'])){
+                    $query->where('phone', 'like', '%'.$input['phone'].'%');
+                }
+                if(!empty($input['address'])){
+                    $query->where('address', 'like', '%'.$input['address'].'%');
                 }
 
             })->orderBy('created_at', 'desc')->paginate(!empty($input['limit']) ? $input['limit'] : 10);
-            $resource= MajorsResource::collection($data);
         }
         catch(Exception $e){
             return response()->json([
@@ -39,7 +40,7 @@ class MajorsController extends Controller
                              ],400);
         }
         return response()->json([
-                'data' => $resource,
+                'data' => $data,
                 'success' => true,
                 'message' => 'Lấy dữ liệu thành công',
             ],200);
@@ -53,20 +54,13 @@ class MajorsController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'id_field' => 'required',
-            'name_id' => 'required|max:255|unique:majors',
-            'name_major' => 'required|max:255|unique:majors',
+            'phone' => 'required|max:255|unique:information',
+            'address' => 'required|max:255|unique:information',
+            'email' => 'required|max:255|unique:information'
         ];
-
         try {
             DB::beginTransaction();
-            $validator = Validator::make($request->all(), $rules,);
-            if($validator->fails()){
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $validator->errors(),
-                ], 422);
-            }
+            $validator = Validator::make($request->all(), $rules, );
             if($validator->fails()){
                 return response()->json([
                     'status' => 'error',
@@ -74,10 +68,11 @@ class MajorsController extends Controller
                 ], 422);
             }
 
-            $data = Majors::create([
-                'id_field'=> $request->id_field,
-                'name_id' => mb_strtoupper($request->name_id),
-                'name_major'=>mb_strtoupper(mb_substr($request->name_major, 0, 1)).mb_substr($request->name_major, 1)
+            $data = Information::create([
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'address' => $request->address,
+
             ]);
             DB::commit();
         } catch(Exception $e) {
@@ -89,9 +84,9 @@ class MajorsController extends Controller
 
         }
         return response()->json([
-            'data' => new MajorsResource($data),
+            'data'=>$data,
             'status' => 'success',
-            'message' =>'Ngành '. $data->name_major . ' đã được tạo thành công !',
+            'message' =>'Thông tin đã được tạo thành công !',
         ]);
 
 
@@ -100,24 +95,24 @@ class MajorsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Majors  $Majors
+     * @param  \App\Models\Information  $Information
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
         try{
-            $data = Majors::find($id);
+            $data = Information::find($id);
 
             if(empty($data)){
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Ngành này không tồn tại, vui lòng kiểm tra lại'
+                    'message' => 'Lĩnh vực này không tồn tại, vui lòng kiểm tra lại'
 
                 ],400);
             }
 
             return response()->json([
-                'data' => new MajorsResource($data),
+                'data' => $data
             ],200);
 
         } catch(Exception $e){
@@ -132,16 +127,19 @@ class MajorsController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Majors  $Majors
+     * @param  \App\Models\Information  $Information
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $rules = [
-            'name_id' => 'required|max:255',
-            'id_field' => 'required',
-            'name_major' => 'required|max:255'
+            'phone' => 'required|max:255',
+            'address' => 'required|max:255',
+            'email' => 'required|max:255'
         ];
+
+
+
         try {
             $validator = Validator::make($request->all(), $rules,);
             if($validator->fails()){
@@ -150,15 +148,14 @@ class MajorsController extends Controller
                     'message' => $validator->errors(),
                 ], 422);
             }
-            $data = Majors::find($id);
+            $data = Information::find($id);
             if(!empty($data)){
                  $data->update([
-                    'id_field'=> $request->id_field,
-                    'name_id' => mb_strtoupper($request->name_id),
-                    'name_major'=>mb_strtoupper(mb_substr($request->name_major, 0, 1)).mb_substr($request->name_major, 1)
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'address' => $request->address,
                 ]);
             }
-
 
 
         } catch(Exception $e) {
@@ -170,20 +167,21 @@ class MajorsController extends Controller
 
         }
         return response()->json([
+            'data'=>$data,
             'status' => 'success',
-            'message' =>'Ngành học đã được cập nhật !',
+            'message' =>'Lĩnh vực đã được cập nhật thành !',
         ]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Majors  $Majors
+     * @param  \App\Models\Information  $Information
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $data = Majors::find($id);
+        $data = Information::find($id);
         if($data) {
             $data->delete();
             return response()->json([

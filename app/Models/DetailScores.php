@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SubjectType extends Model
+class DetailScores extends Model
 {
     use HasFactory;
+    protected $table = 'detail_scores';
+
     protected $fillable = [
-        'id','type_name','created_at','update_at'
+        'id_score', 'title', 'score', 'note', 'percent'
     ];
-    protected $table = 'subject_type';
 }
